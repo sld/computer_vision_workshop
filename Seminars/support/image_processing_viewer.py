@@ -1,17 +1,17 @@
 from headers import *
 
 
-class ImageFilteringViewer:
-  def __init__(self, image_path):
-    self.bgr_img = self.open_image(image_path)
+class ImageProcessingViewer:
+  def __init__(self, image_path, image_processor):
+    self.bgr_img = self.__open_image(image_path)
     self.rgb_img = self.__rgb_img(self.bgr_img)
-    self.image_filter = ImageFilter()
+    self.image_processor = image_processor
     self.image_path = image_path
     self.set_plot_options()
 
-  def apply_filter(self, filter_name, kwargs):
-    filtered_image = getattr(self.image_filter, filter_name)(self.bgr_img, kwargs)
-    plot_title = filter_name + ' ' + self.image_path + ' ' + str(kwargs)
+  def apply(self, function_name, kwargs):
+    filtered_image = getattr(self.image_processor, function_name)(self.bgr_img, kwargs)
+    plot_title = function_name + ' ' + self.image_path + ' ' + str(kwargs)
     self.__plot(filtered_image, plot_title)
 
   def set_plot_options(self, options={}):
@@ -23,7 +23,7 @@ class ImageFilteringViewer:
   def get_plot_options(self):
     return self.plot_options
 
-  def open_image(self, image_path):
+  def __open_image(self, image_path):
     if image_path.split(".")[-1].lower() == "gif":
       return plt.imread(image_path)
     else:

@@ -3,4 +3,8 @@ import cv2
 import numpy as np
 
 from image_filter import ImageFilter
-from image_filtering_viewer import ImageFilteringViewer
+
+import sys
+sys.path.insert(0, '../support')
+
+from image_processing_viewer import ImageProcessingViewer
