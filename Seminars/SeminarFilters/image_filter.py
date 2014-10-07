@@ -1,6 +1,5 @@
 from headers import *
 
-
 class ImageFilter:
   def blur(self, img, kwargs={'size': (3,3)}):
     return cv2.blur(img, kwargs['size'])
