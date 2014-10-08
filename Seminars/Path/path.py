@@ -16,8 +16,13 @@ class PathFinder:
 
   def __filtered_binary_image(self):
     gray_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-    ret, binary = cv2.threshold(gray_image, 250, 1, cv2.THRESH_BINARY)
+    _, blobs = cv2.threshold(gray_image, 3, 1, cv2.THRESH_BINARY)
+    _, start_circle = cv2.threshold(gray_image, 100, 1, cv2.THRESH_BINARY)
+    _, arrows_with_circles = cv2.threshold(gray_image, 250, 1, cv2.THRESH_BINARY)
+    binary = blobs & (cv2.bitwise_not(start_circle)) | arrows_with_circles
     binary = ImageFilter().dilate(binary, {"kernel": np.ones((7,7), np.uint8), "iters": 1})
+    plt.imshow(binary, cmap='gray')
+    plt.show()
     return binary
 
   #TODO: Refactor this fat function
@@ -35,10 +40,7 @@ class PathFinder:
       is_child = current_hierarchy[2] < 0
       is_parent = current_hierarchy[3] < 0
 
-      if is_child:
-        ellipse = cv2.fitEllipse(current_contour)
-        cv2.ellipse(self.image,ellipse,(33,11,33))
-      elif is_parent:
+      if is_parent:
         x,y,w,h = cv2.boundingRect(current_contour)
         cv2.rectangle(self.image,(x,y),(x+w,y+h),(200,255,0),3)
 
@@ -57,15 +59,19 @@ class PathFinder:
           x2 = int(x2 + scale*math.cos(angle))
           y2 = int(y2 + scale*math.sin(angle))
 
-        i_contours = self.__intersection(x2, y2, contours, hierarchy)
-        print [ind, i_contours]
 
         x1, y1 = int(x1), int(y1)
 
         cv2.line(self.image,(x1,y1),(x2,y2),(33,111,11),3)
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(self.image,str(ind),(x1,y1), font, 1,(233,10,44),2)
+        i_contours = self.__intersection(x2, y2, contours, hierarchy)
+        print [ind, i_contours]
+        print ind
         ind += 1
+      elif is_child:
+        ellipse = cv2.fitEllipse(current_contour)
+        cv2.ellipse(self.image,ellipse,(33,11,33))
 
 
   def __intersection(self, x_, y_, contours, hierarchy):
@@ -85,5 +91,5 @@ class PathFinder:
           result.append([ind, is_in_poly])
     return result
 
-pf = PathFinder('./data/Klad00.jpg')
+pf = PathFinder('./data/Klad01.jpg')
 pf.draw()
